@@ -2,19 +2,19 @@
 This sample demonstrates the following scenarios:
 
 1. Users authenticated with different OAuth2/OpenID Connect providers can access my web app with their existing identities.
-![Alt text](images/idp-01.png?raw=true "scenario1") 
+![Alt text](images/idp-01.png "scenario1") 
 2. With a configuration change, not code change, I can switch my web api to use a different OAuth2/OpenID Connect provider.
-![Alt text](images/idp-02.png?raw=true "scenario2") 
+![Alt text](images/idp-02.png "scenario2") 
     * Note that in this scenario, the web api is protected by requiring a user to authenticate, but not requring the user to consent for the web app to access the api on their behalf. This is the case where the web app and the web api all belong to the same company, there's no need for the user to delegate to the web app to access the api. 
-![Alt text](images/idp-02-1.png?raw=true "scenario2.1") 
+![Alt text](images/idp-02-1.png "scenario2.1") 
 3. My web app can access Azure blob storage in multiple Azure AD tenants using Service Principals in those tenants.
-![Alt text](images/idp-03.png?raw=true "scenario3") 
+![Alt text](images/idp-03.png "scenario3") 
     * My web app can generate a Shared Access Signature URL for client applications to access storage.
-![Alt text](images/idp-03-1.png?raw=true "scenario3.1") 
+![Alt text](images/idp-03-1.png "scenario3.1") 
 4. My web app can access Azure blob stroage in multiple Azure AD tenants using a Service Principal in my own tenant with Azure Lighthouse.
-![Alt text](images/idp-04.png?raw=true "scenario4") 
+![Alt text](images/idp-04.png "scenario4") 
     * My web app can generate a Shared Access Signature URL for client applications to access storage without creating service principals in customer's tenants.
-![Alt text](images/idp-04-1.png?raw=true "scenario4.1") 
+![Alt text](images/idp-04-1.png "scenario4.1") 
 
 The majority of the code in this sample is based on [IdentityServer4 Quickstart Tutorial](https://identityserver4.readthedocs.io/en/latest/quickstarts/0_overview.html). You can write an identity provider (IDP) to achieve the authentication scenarios yourself. In fact, [ASP.NET core middleware](https://docs.microsoft.com/en-us/aspnet/core/security/authentication/?view=aspnetcore-3.1) has great support for OAuth2 and OpenID Connect. However, IdentityServer4 is an OpenSource framework that already implements these protocols.
 
