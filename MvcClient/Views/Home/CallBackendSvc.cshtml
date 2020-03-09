@@ -1,0 +1,18 @@
+﻿@model List<string>
+
+@{
+    ViewData["Title"] = "CallBackendSvc";
+}
+
+@{
+    string sub = User.Claims.FirstOrDefault(c => c.Type == "idp").Value;
+}
+<h1>access storage using Lighthouse Provider service principal, user auth provider @sub</h1>
+
+<h2 class="display-4">Blobs</h2>
+<dl>
+    @foreach (var item in Model)
+    {
+        <dt>@item</dt>
+    }
+</dl>

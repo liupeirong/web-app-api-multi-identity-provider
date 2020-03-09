@@ -1,0 +1,28 @@
+@using IdentityServer4.Test;
+
+@model TestUser
+
+<h1>Find User</h1>
+
+@if (Model != null)
+{
+    <h3><ul>
+        <li>UserName: @Model.Username </li>
+        <li>SubjectId: @Model.SubjectId</li>
+        <li>ExternalProvider: @Model.ProviderName </li>
+        <li>ExternalProviderSubjectId: @Model.ProviderSubjectId </li>
+    </ul></h3>
+
+    <h3>Claims</h3>
+    <dl>
+        @foreach (var claim in Model.Claims)
+        {
+            <dt>@claim.Type</dt>
+            <dd>@claim.Value</dd>
+        }
+    </dl>
+}
+else 
+{
+    <h3>User not found</h3>
+}
