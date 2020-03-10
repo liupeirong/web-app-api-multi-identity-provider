@@ -1,0 +1,65 @@
+name: IdentityServer CICD
+
+on:
+  push:
+    branches: [ master ]
+    paths-ignore: 
+      - 'images/**'
+      - '**.md'
+
+jobs:
+  build_deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: '3.0.100'
+    - run: | 
+        dotnet build IdentityServer
+    - run: |
+        dotnet publish IdentityServer -o IdentityServerPackage
+
+    - uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: '3.1.100'
+    - run: | 
+        dotnet build BackendSvc
+    - run: |
+        dotnet publish BackendSvc -o BackendSvcPackage
+
+    - uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: '3.1.100'
+    - run: | 
+        dotnet build MvcClient
+    - run: |
+        dotnet publish MvcClient -o MvcClientPackage
+
+    - name: Login to Azure as Azure Lighthouse provider
+      uses: Azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_LIGHTHOUSE_SP }}
+
+    #- name: List resource groups
+    #  run: az group list
+        
+    - name: Deploy IdentityServer to Azure WebApp
+      uses: Azure/webapps-deploy@v2
+      with:
+        app-name: 'polyauthserver'
+        package: './IdentityServerPackage'
+      
+    - name: Deploy BackendSvc to Azure WebApp
+      uses: Azure/webapps-deploy@v2
+      with:
+        app-name: 'polyauthbackend'
+        package: './BackendSvcPackage'
+      
+    - name: Deploy MvcClient to Azure WebApp
+      uses: Azure/webapps-deploy@v2
+      with:
+        app-name: 'polyauthfrontend'
+        package: './MvcClientPackage'
+      

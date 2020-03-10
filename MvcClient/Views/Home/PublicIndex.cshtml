@@ -3,11 +3,12 @@
     ViewData["Title"] = "PublicIndex";
 }
 
-<h1>Poly Auth MVC client sample</h1>
+<h1>Multi-OAuth2-Identity-Provider Client Sample</h1>
 
 You can use this sample to 
 <ul>
     <li>connect to an IdentityServer which supports Local, Azure AD, and Google authentication. This is useful when you want a OAuth2 Security Token Service to take care of handling multiple external identity providers.</li>
-    <li>with a configuration change, connect to Azure AD or Google for authentication. This is usefule when you don't want to build or host your own custom identity provider and instead just use a cloud provider.</li>
+    <li>with a configuration change, connect to Azure AD or Google for authentication. This is useful when you don't want to build or host your own custom identity provider and instead just use a cloud provider.</li>
+    <li>access Azure blob storage in multiple Azure AD tenants with service principals in each tenant, and generate SAS URL with UserDelegationKey.</li>
+    <li>access Azure blob storage in multiple Azure Lighthouse target tenants with a single service principal in the Lighthouse provider tenant, and generate SAS URL.</li>
 </ul>
-
