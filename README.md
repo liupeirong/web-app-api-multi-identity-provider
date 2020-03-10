@@ -3,31 +3,31 @@ This sample demonstrates the following scenarios:
 
 1. Users authenticated with different OAuth2/OpenID Connect providers can access my web app with their existing identities.
 
-<img src="images/idp-01.png" height=70% width=70%>
+<img src="images/idp-01.png" height=60% width=60%>
 
 2. With a configuration change, not code change, I can switch my web api to use a different OAuth2/OpenID Connect provider.
 
-<img src="images/idp-02.png" height=70% width=70%>
+<img src="images/idp-02.png">
 
-    Note that in this scenario, the web api is protected by requiring a user to authenticate, but not requring the user to consent for the web app to access the api on their behalf. This is the case where the web app and the web api all belong to the same company, there's no need for the user to delegate to the web app to access the api. 
+>Note that in this scenario, the web api is protected by requiring a user to authenticate, but not requring the user to consent for the web app to access the api on their behalf. This is the case where the web app and the web api all belong to the same company, there's no need for the user to delegate to the web app to access the api. 
 
-<img src="images/idp-02-1.png" height=70% width=70%>
+<img src="images/idp-02-1.png" height=60% width=60%>
 
 3. My web app can access Azure blob storage in multiple Azure AD tenants using Service Principals in those tenants.
 
-<img src="images/idp-03.png" height=70% width=70%>
+<img src="images/idp-03.png" height=60% width=60%>
 
-    My web app can generate a Shared Access Signature URL for client applications to access storage.
+>My web app can generate a Shared Access Signature URL for client applications to access storage.
 
-<img src="images/idp-03-1.png" height=70% width=70%>
+<img src="images/idp-03-1.png" height=60% width=60%>
 
 4. My web app can access Azure blob stroage in multiple Azure AD tenants using a Service Principal in my own tenant with Azure Lighthouse.
 
-<img src="images/idp-04.png" height=70% width=70%>
+<img src="images/idp-04.png" height=60% width=60%>
 
-    My web app can generate a Shared Access Signature URL for client applications to access storage without creating service principals in customer's tenants.
+>My web app can generate a Shared Access Signature URL for client applications to access storage without creating service principals in customer's tenants.
 
-<img src="images/idp-04-1.png" height=70% width=70%>
+<img src="images/idp-04-1.png" height=60% width=60%>
 
 The majority of the code in this sample is based on [IdentityServer4 Quickstart Tutorial](https://identityserver4.readthedocs.io/en/latest/quickstarts/0_overview.html). You can write an identity provider (IDP) to achieve the authentication scenarios yourself. In fact, [ASP.NET core middleware](https://docs.microsoft.com/en-us/aspnet/core/security/authentication/?view=aspnetcore-3.1) has great support for OAuth2 and OpenID Connect. However, IdentityServer4 is an OpenSource framework that already implements these protocols.
 
@@ -56,9 +56,21 @@ If you want to set up the solution from scratch, here are the main steps:
 9. Implement [web api](BackendSvc/BlobstoreController.cs#L51) to access Azure Blob Storage in the target tenant you deployed with Azure Lighthouse.
 
 ## Test the scenarios
-1. TODO
-2. TODO
-3. TODO
-4. TODO
-
-
+1. Go to https://polyauthfrontend.azurewebsites.net, 
+    * log in as zoe/zoe, then log out
+    * log in using an Azure AD account, then log out
+    * log in using a Google account, then log out (note that you need to log out of the client app, but also go to google to logout)
+    * log in to the Demo IdentityServer as bob/bob, then log out
+2. Go to [MvcClient/appsettings.json](MvcClient/appsettings.json), 
+    * change ```AuthProvider``` to ```google```, go to https://polyauthfrontend.azurewebsites.net, log in to Google, then log out.
+    * change ```AuthProvider``` to ```aad```, go to https://polyauthfrontend.azurewebsites.net, log in to Azure AD.
+    * Click on ```CallBackendSvc```, it will fail because the BackendSvc is still using the IdentityServer. Change [BackendSvc/appsettings.json](BackendSvc/appsettings.json) ```AuthProvider``` to ```aad```, refresh and ```CallBackendSvc``` again, it should work. Examine [how the BackendSvc verifies the Authorization token](BackendSvc/Startup.cs#L29) by validating the token __issuer__ and __audience__ without any code specific to each identity provider. 
+    * log out and change ```AuthProvider``` in both [MvcClient/appsettings.json](MvcClient/appsettings.json) and [BackendSvc/appsettings.json](BackendSvc/appsettings.json) to ```myidsrv```.
+3. Go to https://polyauthfrontend.azurewebsites.net,
+    * log in using an Azure AD account, then ```CallBackendSvcSP```, you'll see a list of blobs prefixed with *curve_*. The last item in the list is a SAS url to the last blob on the list that you can use to directly access in the browser.
+    * log out and log in using IdentityServer or Google, you'll see a different list of blobs. 
+    * examine how BackendSvc is [configured](BackendSvc/appsettings.json#L30) to use different Service Principals to access different Storage accounts based on the identity provider user signed in with. 
+4. Go to https://polyauthfrontend.azurewebsites.net,
+    * log in using an Azure AD account, then ```CallBackendSvc```, you'll see a list of blobs. The last time in the list is a SAS url to the last blob on the list that you can use to directly access in the browser.  
+    * log out and log in using IdentityServer or Google, you'll see a different list of blobs. 
+    * examine how BackendSvc is [configured](BackendSvc/appsettings.json#L11) to use a single Service Principal to access different Storage accounts in different Azure AD tenants, based on the identity provider user signed in with. 

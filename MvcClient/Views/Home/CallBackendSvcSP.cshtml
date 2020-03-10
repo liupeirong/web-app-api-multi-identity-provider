@@ -5,9 +5,10 @@
 }
 
 @{
-    string sub = User.Claims.FirstOrDefault(c => c.Type == "idp").Value;
+    var idp = User.Claims.FirstOrDefault(c => c.Type == "idp");
+    string sub = (idp != null) ? idp.Value : "";
 }
-<h1>access storage using customer service principal, user auth provider @sub</h1>
+<h1>access storage using customer service principal, auth provider @sub</h1>
 
 <h2 class="display-4">Blobs</h2>
 <dl>

@@ -48,9 +48,12 @@ namespace MvcClient.Controllers
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
 
-        public IActionResult Logout()
+        public async Task<IActionResult> Logout()
         {
-            return SignOut("Cookies", _configuration["AuthProvider"]);
+            if (_configuration["AuthProvider"].EndsWith("google"))
+                return SignOut("Cookies");
+            else
+                return SignOut("Cookies", _configuration["AuthProvider"]);
         }
 
         [Authorize]
