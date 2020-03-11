@@ -180,16 +180,45 @@ namespace BackendSvc
         private string GetContainerSASWithLighthouse(BlobServiceClient service, string storageAccount,
             string storageContainer, string blobName, StorageSharedKeyCredential credential)
         {
-            DateTimeOffset expiresOn = DateTimeOffset.UtcNow.AddHours(2);
-            BlobSasBuilder blobSasBuilder = new BlobSasBuilder
+            BlobSasBuilder blobSasBuilder;
+
+            BlobContainerClient container = service.GetBlobContainerClient(storageContainer);
+            BlobContainerAccessPolicy policy = container.GetAccessPolicy();
+            BlobSignedIdentifier blobSignedIdentifier = policy.SignedIdentifiers.FirstOrDefault(x => x.Id == "expiresapr"); 
+
+            // if stored access policy exists, use it, otherwise, specify permissions
+            if (blobSignedIdentifier != null)
             {
-                BlobContainerName = storageContainer,
-                ExpiresOn = expiresOn
-            };
-            blobSasBuilder.SetPermissions(
-                BlobContainerSasPermissions.Read |
-                BlobContainerSasPermissions.Create |
-                BlobContainerSasPermissions.List);
+                blobSasBuilder = new BlobSasBuilder
+                {
+                    BlobContainerName = storageContainer,
+                    Identifier = blobSignedIdentifier.Id
+                };
+                /* load test how fast we can generate SAS token
+                for (int ii = 0; ii < 100000; ++ii )
+                {
+                    var blobSas = new BlobSasBuilder
+                    {
+                        BlobContainerName = storageContainer,
+                        BlobName = "abc" + ii, 
+                        Identifier = blobSignedIdentifier.Id
+                    };
+                    var param = blobSas.ToSasQueryParameters(credential).ToString();
+                }*/
+            }
+            else
+            {
+                DateTimeOffset expiresOn = DateTimeOffset.UtcNow.AddHours(2);
+                blobSasBuilder = new BlobSasBuilder
+                {
+                    BlobContainerName = storageContainer,
+                    ExpiresOn = expiresOn,
+                };
+                blobSasBuilder.SetPermissions(
+                    BlobContainerSasPermissions.Read |
+                    BlobContainerSasPermissions.Create |
+                    BlobContainerSasPermissions.List);
+            }
 
             var sasQueryParameters = blobSasBuilder.ToSasQueryParameters(credential).ToString();
             String uri = String.IsNullOrEmpty(blobName) ? 
