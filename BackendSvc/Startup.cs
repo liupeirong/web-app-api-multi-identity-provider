@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -5,6 +6,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
+using System.Collections.Generic;
 
 namespace BackendSvc
 {
@@ -20,23 +22,35 @@ namespace BackendSvc
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
+            var authnBuilder = services.AddAuthentication();
 
-            string authProvider = Configuration["AuthProvider"];
-            var authConfig = Configuration.GetSection(authProvider);
-
-            // this validates the incoming token is from a trusted issuer
-            // and it's issued for this api (audience)
-            services.AddAuthentication("Bearer")
-                .AddJwtBearer("Bearer", options =>
+            var authProviders = Configuration.GetSection("TrustedAuthProviders").GetChildren();
+            List<string> schemes = new List<string>();
+            foreach(var provider in authProviders)
+            {
+                string scheme = provider.GetValue<string>("scheme");
+                // validate the token comes from trusted authority and is issued
+                // to expected audience
+                authnBuilder.AddJwtBearer(scheme, options =>
                 {
-                    options.Authority = authConfig["Authority"];
+                    options.Authority = provider.GetValue<string>("authority");
                     options.RequireHttpsMetadata = false;
-                    options.Audience = authConfig["Audience"];
+                    options.Audience = provider.GetValue<string>("audience");
                     options.TokenValidationParameters = new TokenValidationParameters
                     {
                         //the issuer in multi-tenant app changes by the tenant
                         ValidateIssuer = false, 
                     };
+                });
+                schemes.Add(scheme);
+            }
+
+            services.AddAuthorization(options =>
+                {
+                    var  authPolicyBuilder = new AuthorizationPolicyBuilder()
+                        .RequireAuthenticatedUser()
+                        .AddAuthenticationSchemes(schemes.ToArray());
+                    options.DefaultPolicy = authPolicyBuilder.Build();
                 });
         }
 
