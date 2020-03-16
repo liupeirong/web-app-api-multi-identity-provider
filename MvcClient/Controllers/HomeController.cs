@@ -63,7 +63,7 @@ namespace MvcClient.Controllers
         }
 
         [Authorize]
-        [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
+        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public async Task<IActionResult> CallBackendSvcSP()
         {
             return await CallBackendSvcCommon(_configuration["BackendSvcUrlSP"]);

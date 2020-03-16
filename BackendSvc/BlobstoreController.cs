@@ -28,6 +28,7 @@ namespace BackendSvc
         }
 
         [HttpGet("blobssp")]
+        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IEnumerable<string> ListContainerSP()
         {
             // access storage and generate a SAS URL with a service principal in the same tenant as the storage account
