@@ -1,9 +1,11 @@
-﻿
+﻿@using Microsoft.Extensions.Configuration
+@inject IConfiguration Configuration
 @{
     ViewData["Title"] = "PublicIndex";
+    string IDP = Configuration["AuthProvider"];
 }
 
-<h1>Multi-OAuth2-Identity-Provider Client Sample</h1>
+<h1>Multi-OAuth2-Identity-Provider Client Sample, provider is <b>@IDP</b></h1>
 
 You can use this sample to 
 <ul>
