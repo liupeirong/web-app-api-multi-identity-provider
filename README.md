@@ -34,10 +34,10 @@ The majority of the code in this sample is based on [IdentityServer4 Quickstart 
 ## Try it out
 There's an instance of this solution deployed in Azure, using [Github actions in this repo](.github/workflows/cicd.yml), that you can try without having to configure anything yourself: 
 * sample web client app: https://polyauthfrontend.azurewebsites.net using IdentityServer to federate against multiple external providers.
-  * another instance of the client app: https://polyauthfrontendaad.azurewebsites.net using Azure AD as identity provider.
+  * another instance of the client app: https://polyauthfrontendaad.azurewebsites.net using Azure AD as the identity provider.
   * another instance of the client app: https://polyauthfrontendgoogle.azurewebsites.net using Google as the identity provider.
-* sample web api: https://polyauthbackend.azurewebsites.net
-* web app that runs IdentityServer4: https://polyauthserver.azurewebsites.net
+* sample web api: https://polyauthbackend.azurewebsites.net.
+* web app that runs IdentityServer4: https://polyauthserver.azurewebsites.net.
 
 ## Test the scenarios
 1. Go to https://polyauthfrontend.azurewebsites.net, 
@@ -48,15 +48,15 @@ There's an instance of this solution deployed in Azure, using [Github actions in
 2. Go to https://polyauthfrontendaad.azurewebsites.net, login button will lead you directly to Azure AD.
     * similarly, https://polyauthfrontendgoogle.azurewebsites.net, login button will lead you directly to Google.
     * These are different instances of the same frontend application, the only difference is in [MvcClient/appsettings.json](MvcClient/appsettings.json), ```AuthProvider``` is configured to go to ```myidsrv``` vs ```aad``` vs ```google```.
-    * Click on ```CallBackendSvcSP``` to make a backend call from https://polyauthfrontendaad.azurewebsites.net and https://polyauthfrontendgoogle.azurewebsites.net respectively. This works because BackendSvc is configured to trust the Identity Server and Azure AD, as seen in [BackendSvc/appsettings.json](BackendSvc/appsettings.json) ```TrustedAuthProviders```. Examine [how the BackendSvc verifies the __issuer__ and __audience__ of the Authorization token](BackendSvc/Startup.cs#L27) without any code specific to each identity provider. 
+    * Click on ```CallBackendSvcSP``` to make a backend call from https://polyauthfrontend.azurewebsites.net and https://polyauthfrontendaad.azurewebsites.net respectively. This works because BackendSvc is configured to trust the IdentityServer and Azure AD, as seen in [BackendSvc/appsettings.json](BackendSvc/appsettings.json) ```TrustedAuthProviders```. Examine [how the BackendSvc verifies the __issuer__ and __audience__ of the Authorization token](BackendSvc/Startup.cs#L27) without any code specific to each identity provider. 
 3. Go to https://polyauthfrontend.azurewebsites.net,
     * log in using an Azure AD account, then ```CallBackendSvcSP```, you'll see a list of blobs prefixed with *curve_*. The last item in the list is a SAS url to the last blob on the list that you can use to directly access in the browser.
     * log out and log in using IdentityServer or Google, you'll see a different list of blobs. 
-    * examine how BackendSvc is [configured](BackendSvc/appsettings.json#L33) to use different Service Principals to access different Storage accounts based on the identity provider user signed in with. 
+    * examine how BackendSvc is [configured](BackendSvc/appsettings.json#L33) to use __different Service Principals__ to access different Storage accounts based on the identity provider user signed in with. 
 4. Go to https://polyauthfrontend.azurewebsites.net,
-    * log in using an Azure AD account, then ```CallBackendSvc```, you'll see a list of blobs. The last time in the list is a SAS url to the last blob on the list that you can use to directly access in the browser.  
+    * log in using an Azure AD account, then ```CallBackendSvc```, you'll see a list of blobs. The last item in the list is a SAS url to the last blob on the list that you can use to directly access in the browser.  
     * log out and log in using IdentityServer or Google, you'll see a different list of blobs. 
-    * examine how BackendSvc is [configured](BackendSvc/appsettings.json#L14) to use a single Service Principal to access different Storage accounts in different Azure AD tenants, based on the identity provider user signed in with. 
+    * examine how BackendSvc is [configured](BackendSvc/appsettings.json#L14) to use a __single Service Principal__ to access different Storage accounts in different Azure AD tenants, based on the identity provider user signed in with. 
 
 ## Run it yourself
 There are 3 projects in this repo:
@@ -68,8 +68,8 @@ The code in the repo is fully functional. You can clone and run them in localhos
 
 If you want to set up the solution from scratch, here are the main steps: 
 1. [Register an application in Azure AD](https://docs.microsoft.com/en-us/azure/active-directory/develop/quickstart-register-app). Only registered apps can sign in a user in Azure AD.
-  * make sure to set ```accessTokenAcceptedVersion``` to 2 in the manifest if you want to use Azure AD v2 tokens.
-  * for a Azure AD multi-tenant application, follow [this guideline](https://docs.microsoft.com/en-us/azure/architecture/multitenant-identity/claims#issuer-validation) to validate issuer. In this sample, we don't restrict the tenants who can sign in. 
+    *  make sure to set ```accessTokenAcceptedVersion``` to 2 in the manifest if you want to use Azure AD v2 tokens.
+    *  for a Azure AD multi-tenant application, follow [this guideline](https://docs.microsoft.com/en-us/azure/architecture/multitenant-identity/claims#issuer-validation) to validate issuer. In this sample, we don't restrict the tenants who can sign in. 
 2. [Register an application in Google](https://developers.google.com/identity/sign-in/web/sign-in). 
 3. Follow [this IdentityServer4 tutorial](https://identityserver4.readthedocs.io/en/latest/quickstarts/2_interactive_aspnetcore.html#interactive-applications-with-asp-net-core) to set up and customize your ASP.NET Core client application with IdentityServer4.
 4. [Add Azure AD as an external provider to the web app](IdentityServer/Startup.cs#L55)
