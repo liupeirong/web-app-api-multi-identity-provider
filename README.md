@@ -71,10 +71,12 @@ If you want to set up the solution from scratch, here are the main steps:
     *  make sure to set ```accessTokenAcceptedVersion``` to 2 in the manifest if you want to use Azure AD v2 tokens.
     *  for a Azure AD multi-tenant application, follow [this guideline](https://docs.microsoft.com/en-us/azure/architecture/multitenant-identity/claims#issuer-validation) to validate issuer. In this sample, we don't restrict the tenants who can sign in. 
 2. [Register an application in Google](https://developers.google.com/identity/sign-in/web/sign-in). 
-3. Follow [this IdentityServer4 tutorial](https://identityserver4.readthedocs.io/en/latest/quickstarts/2_interactive_aspnetcore.html#interactive-applications-with-asp-net-core) to set up and customize your ASP.NET Core client application with IdentityServer4.
+3. Follow [this IdentityServer4 tutorial](https://identityserver4.readthedocs.io/en/latest/quickstarts/2_interactive_aspnetcore.html#interactive-applications-with-asp-net-core) to set up and customize your ASP.NET Core client application with IdentityServer4. Verify IdentityServer works by logging in and navigate to the /Diagnostics page to see the auth token information.
 4. [Add Azure AD as an external provider to the web app](IdentityServer/Startup.cs#L55)
 5. [Add Demo IdentityServer4 as an external provider to the web app](IdentityServer/Startup.cs#L86)
 6. [Add custom or non-standard scopes](IdentityServer/Config.cs#L22) that a client can [request](IdentityServer/Config.cs#L56).
 7. Implement [web api](BackendSvc/BlobstoreController.cs#L31) to access Azure Blob Storage.
 8. Follow this [Azure Lighthouse documentation](https://docs.microsoft.com/en-us/azure/lighthouse/how-to/onboard-customer) to deploy a storage account in another tenant. 
 9. Implement [web api](BackendSvc/BlobstoreController.cs#L51) to access Azure Blob Storage in the target tenant you deployed with Azure Lighthouse.
+
+When running in localhost, IdentityService may not work in Chrome. But other browsers work. Since this just stopped working recently, it might be related to the recent [SameSite cookie change](https://blog.chromium.org/2020/02/samesite-cookie-changes-in-february.html).
