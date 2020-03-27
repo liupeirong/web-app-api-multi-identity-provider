@@ -53,7 +53,7 @@ namespace BackendSvc
         {
             // access storage and generate a SAS URL in an Azure Lighthouse customer's tenant with a service principal 
             // in the Lighthouse Provider tenant
-            var (service, storageAccount, storageContainer, credential) = await GetBlobServiceWithLighthouse();
+            var (service, storageAccount, storageContainer, credential) = GetBlobServiceWithLighthouseMSI();
             var container = service.GetBlobContainerClient(storageContainer);
 
             List<string> names = new List<string>();
@@ -63,7 +63,7 @@ namespace BackendSvc
             }
 
             string lastBlob = (names.Count > 0) ? names.Last() : "";
-            string sasurl = GetContainerSASWithLighthouse(service, storageAccount, storageContainer, lastBlob, credential);
+            string sasurl = GetContainerSASWithServicePrincipal(service, storageAccount, storageContainer, lastBlob);
             names.Add(sasurl);
 
             return names;
@@ -176,6 +176,28 @@ namespace BackendSvc
             StorageSharedKeyCredential credential = new StorageSharedKeyCredential(storageAccount, acctKeys[0].Value);
             BlobServiceClient service = new BlobServiceClient(accountUri, credential);
             return (service, storageAccount, storageContainer, credential);
+        }
+
+        private (BlobServiceClient service, string account, string container, DefaultAzureCredential credential) 
+            GetBlobServiceWithLighthouseMSI()
+        {
+            var lhConfig = _configuration.GetSection("withLighthouse");
+            var spMap = lhConfig.GetSection("userStorageMap");
+            string idp = User.Claims.FirstOrDefault(x => (x.Type == "idp" || 
+                x.Type.EndsWith("identityprovider", true, null)))?.Value;
+            string cfgSec = String.IsNullOrEmpty(idp) ? "default" : idp;
+            var spConfig = spMap.GetSection(cfgSec);
+            if (!spConfig.Exists())
+                spConfig = spMap.GetSection("default");
+
+            string storageAccount = spConfig["storageAccount"];
+            string storageContainer = spConfig["storageContainer"];
+            Uri accountUri = new Uri(String.Format("https://{0}.blob.core.windows.net", storageAccount));
+
+            DefaultAzureCredential msiCredential = new DefaultAzureCredential();
+
+            BlobServiceClient service = new BlobServiceClient(accountUri, msiCredential);
+            return (service, storageAccount, storageContainer, msiCredential);
         }
 
         private string GetContainerSASWithLighthouse(BlobServiceClient service, string storageAccount,

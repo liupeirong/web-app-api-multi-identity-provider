@@ -18,8 +18,9 @@
                 "pattern": "^\\s*Now listening on:\\s+(https?://\\S+)"
             },
             "env": {
-                "ASPNETCORE_ENVIRONMENT": "Development"
+                "ASPNETCORE_ENVIRONMENT": "Development",
             },
+            "envFile": "${workspaceFolder}/.env",
             "sourceFileMap": {
                 "/Views": "${workspaceFolder}/Views"
             }
