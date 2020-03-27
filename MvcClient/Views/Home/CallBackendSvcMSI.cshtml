@@ -1,0 +1,19 @@
+﻿@model List<string>
+
+@{
+    ViewData["Title"] = "CallBackendSvcMSI";
+}
+
+@{
+    var idp = User.Claims.FirstOrDefault(c => c.Type == "idp");
+    string sub = (idp != null) ? idp.Value : "";
+}
+<h1>access storage using MSI, can be MSI created by Lighthouse</h1>
+
+<h2 class="display-4">Blobs</h2>
+<dl>
+    @foreach (var item in Model)
+    {
+        <dt>@item</dt>
+    }
+</dl>

@@ -48,8 +48,8 @@ namespace BackendSvc
             return names;
         }
 
-        [HttpGet("blobs")]
-        public async Task<IEnumerable<string>> ListContainer()
+        [HttpGet("blobsmsi")]
+        public IEnumerable<string> ListContainerMSI()
         {
             // access storage and generate a SAS URL in an Azure Lighthouse customer's tenant with a service principal 
             // in the Lighthouse Provider tenant
@@ -64,6 +64,27 @@ namespace BackendSvc
 
             string lastBlob = (names.Count > 0) ? names.Last() : "";
             string sasurl = GetContainerSASWithServicePrincipal(service, storageAccount, storageContainer, lastBlob);
+            names.Add(sasurl);
+
+            return names;
+        }
+
+        [HttpGet("blobs")]
+        public async Task<IEnumerable<string>> ListContainer()
+        {
+            // access storage and generate a SAS URL in an Azure Lighthouse customer's tenant with a service principal 
+            // in the Lighthouse Provider tenant
+            var (service, storageAccount, storageContainer, credential) = await GetBlobServiceWithLighthouse();
+            var container = service.GetBlobContainerClient(storageContainer);
+
+            List<string> names = new List<string>();
+            foreach (BlobItem blob in container.GetBlobs())
+            {
+                names.Add(blob.Name);
+            }
+
+            string lastBlob = (names.Count > 0) ? names.Last() : "";
+            string sasurl = GetContainerSASWithLighthouse(service, storageAccount, storageContainer, lastBlob, credential);
             names.Add(sasurl);
 
             return names;
@@ -121,6 +142,8 @@ namespace BackendSvc
                 BlobContainerSasPermissions.Create |
                 BlobContainerSasPermissions.List);
 
+            // the principal must have storage account level "Storage Blob Delegator" role to 
+            // be able to get user delegation key
             UserDelegationKey delegationKey = service.GetUserDelegationKey(null, expiresOn).Value;
             var sasQueryParameters = blobSasBuilder.ToSasQueryParameters(delegationKey, storageAccount);
             String uri = String.IsNullOrEmpty(blobName) ? 

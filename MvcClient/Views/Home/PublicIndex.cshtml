@@ -13,4 +13,5 @@ You can use this sample to
     <li>with a configuration change, connect to Azure AD or Google for authentication. This is useful when you don't want to build or host your own custom identity provider and instead just use a cloud provider.</li>
     <li>access Azure blob storage in multiple Azure AD tenants with service principals in each tenant, and generate SAS URL with UserDelegationKey.</li>
     <li>access Azure blob storage in multiple Azure Lighthouse target tenants with a single service principal in the Lighthouse provider tenant, and generate SAS URL.</li>
+    <li>access Azure blob storage using Azure Managed Service Identity. By design this only works in the Azure AD tenant where the backend service and the storage account are colocated.</li>
 </ul>

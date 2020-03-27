@@ -29,6 +29,8 @@ This sample demonstrates the following scenarios:
 
 <img src="images/idp-04-1.png" height=60% width=60%>
 
+Whether you use Azure Lighthouse or not, you can also assign a Managed Service Identity or [MSI](https://docs.microsoft.com/en-us/azure/active-directory/managed-identities-azure-resources/overview) to the web service to access storage so that you don't need to manage secrets for service principals.  While this approach is superior in security, it only works if your web service and storage account are in the same Azure AD tenant. 
+
 The majority of the code in this sample is based on [IdentityServer4 Quickstart Tutorial](https://identityserver4.readthedocs.io/en/latest/quickstarts/0_overview.html). You can write an identity provider (IDP) to achieve the authentication scenarios yourself. In fact, [ASP.NET core middleware](https://docs.microsoft.com/en-us/aspnet/core/security/authentication/?view=aspnetcore-3.1) has great support for OAuth2 and OpenID Connect. However, IdentityServer4 is an OpenSource framework that already implements these protocols.
 
 ## Try it out
@@ -54,8 +56,9 @@ There's an instance of this solution deployed in Azure, using [Github actions in
     * log out and log in using IdentityServer or Google, you'll see a different list of blobs. 
     * examine how BackendSvc is [configured](BackendSvc/appsettings.json#L33) to use __different Service Principals__ to access different Storage accounts based on the identity provider user signed in with. 
 4. Go to https://polyauthfrontend.azurewebsites.net,
-    * log in using an Azure AD account, then ```CallBackendSvc```, you'll see a list of blobs. The last item in the list is a SAS url to the last blob on the list that you can use to directly access in the browser.  
-    * log out and log in using IdentityServer or Google, you'll see a different list of blobs. 
+    * log in using an Azure AD account, then ```CallBackendSvc```, you'll see a list of blobs. The last item in the list is a SAS url to the last blob on the list that you can use to directly access in the browser. 
+    * also try ```CallBackendSvcMSI```, you'll see the same list of blobs. The superiority of MSI is that there's no service principal configurations needed for the application.  
+    * log out and log in using IdentityServer or Google, you'll see a different list of blobs. The storage account where the blobs are located is in another Azure AD tenant. If you try ```CallBackendSvcMSI``` now, it will throw an error, because MSI only works in the tenant where the web service and the storage account are colated. 
     * examine how BackendSvc is [configured](BackendSvc/appsettings.json#L14) to use a __single Service Principal__ to access different Storage accounts in different Azure AD tenants, based on the identity provider user signed in with. 
 
 ## Run it yourself
@@ -77,6 +80,7 @@ If you want to set up the solution from scratch, here are the main steps:
 6. [Add custom or non-standard scopes](IdentityServer/Config.cs#L22) that a client can [request](IdentityServer/Config.cs#L56).
 7. Implement [web api](BackendSvc/BlobstoreController.cs#L31) to access Azure Blob Storage.
 8. Follow this [Azure Lighthouse documentation](https://docs.microsoft.com/en-us/azure/lighthouse/how-to/onboard-customer) to deploy a storage account in another tenant. 
-9. Implement [web api](BackendSvc/BlobstoreController.cs#L51) to access Azure Blob Storage in the target tenant you deployed with Azure Lighthouse.
+9. Implement [web api](BackendSvc/BlobstoreController.cs#L73) to access Azure Blob Storage in the target tenant you deployed with Azure Lighthouse.
+10. Implement [web api](BackendSvc/BlobstoreController.cs#L52) to access Azure Blob Storage using MSI.
 
 When running in localhost, IdentityService may not work in Chrome. But other browsers work. Since this just stopped working recently, it might be related to the recent [SameSite cookie change](https://blog.chromium.org/2020/02/samesite-cookie-changes-in-february.html).

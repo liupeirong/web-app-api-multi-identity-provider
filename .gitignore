@@ -342,3 +342,5 @@ healthchecksdb
 
 # dev keys
 *.rsa
+
+.env

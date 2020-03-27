@@ -63,6 +63,12 @@ namespace MvcClient.Controllers
         }
 
         [Authorize]
+        public async Task<IActionResult> CallBackendSvcMSI()
+        {
+            return await CallBackendSvcCommon(_configuration["BackendSvcUrlMSI"]);
+        }
+
+        [Authorize]
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public async Task<IActionResult> CallBackendSvcSP()
         {
