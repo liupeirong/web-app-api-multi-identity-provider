@@ -84,3 +84,14 @@ If you want to set up the solution from scratch, here are the main steps:
 10. Implement [web api](BackendSvc/BlobstoreController.cs#L52) to access Azure Blob Storage using MSI.
 
 When running in localhost, IdentityService may not work in Chrome. But other browsers work. Since this just stopped working recently, it might be related to the recent [SameSite cookie change](https://blog.chromium.org/2020/02/samesite-cookie-changes-in-february.html).
+
+To use GitHub actions to deploy to Azure, add a secret that will be used by az cli to log in to Azure.  With Lighthouse, you can deploy the services to the customer's subscription with the provider's credential when you configure the secrets as following:
+
+```json
+{
+    "clientId": "providers-service-principal-app-id",
+    "clientSecret": "providers-service-principal-secret",
+    "subscriptionId": "customers-subscription-id",
+    "tenantId": "providers-tenant-id"
+}
+```
