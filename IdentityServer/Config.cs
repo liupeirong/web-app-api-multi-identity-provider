@@ -55,8 +55,10 @@ namespace IdentityServer
                         IdentityServerConstants.StandardScopes.Email,
                         "business",
                         "aadtenant",
-                    }
+                    },
 
+                    // identity token valid for 2 hours
+                    IdentityTokenLifetime = 7200
                 }
             };
         
